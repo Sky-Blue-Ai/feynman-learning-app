@@ -1,0 +1,11 @@
+{
+  "name": "feynman-learning-app",
+  "version": "1.0.0",
+  "description": "基于费曼学习法的本地学习应用，数据保存在项目 JSON 文件中",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "license": "MIT",
+  "private": true
+}

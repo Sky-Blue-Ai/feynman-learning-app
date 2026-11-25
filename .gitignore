@@ -1,0 +1,6 @@
+node_modules/
+.DS_Store
+
+# 本地运行时生成的数据（含个人学习记录与 API Key），不进仓库
+data/records.json
+data/settings.json

@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>费曼学习室 · 以教为学</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="icon" href="favicon.ico" sizes="any">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="app-shell">
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-mark"><span>F</span></div>
+      <div class="brand-text">
+        <h1>费曼学习室</h1>
+        <p>把「以为懂了」变成「真的懂了」</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <nav class="tabs">
+        <button class="tab is-active" data-tab="workspace">学习台</button>
+        <button class="tab" data-tab="history">记录库 <span class="tab-count" id="record-count">0</span></button>
+      </nav>
+      <button class="settings-trigger" id="settings-trigger" title="AI 设置">
+        <svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="3"></circle>
+          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.6a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+        </svg>
+        <span>AI 设置</span>
+        <i class="settings-dot hidden" id="settings-dot"></i>
+      </button>
+    </div>
+  </header>
+
+  <main class="main">
+    <section class="view is-active" id="view-workspace">
+      <div class="workspace-intro">
+        <span class="intro-kicker">LEARNING LOOP · 以教为学</span>
+        <p>别骗自己——你最容易骗的就是自己。<span>理查德 · 费曼</span></p>
+      </div>
+
+      <div class="workspace-layout">
+        <aside class="step-rail" id="stepper"></aside>
+        <div class="stage" id="step-content"></div>
+      </div>
+
+      <div class="action-bar">
+        <button class="btn-text" id="prev-btn">← 上一步</button>
+        <span class="save-hint" id="save-hint"></span>
+        <button class="btn btn-primary" id="next-btn">下一步 →</button>
+      </div>
+    </section>
+
+    <section class="view" id="view-history">
+      <div class="section-head">
+        <div>
+          <h2>学习记录</h2>
+          <p>每一轮「讲清楚」的过程，都存在这里</p>
+        </div>
+        <button class="btn btn-primary" id="new-record-btn">+ 开始新一轮</button>
+      </div>
+      <div class="history-list" id="history-list"></div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span class="status-dot"></span>
+    <span>数据只存在你这边：本地运行写 <code>data/records.json</code>，线上版存浏览器</span>
+  </footer>
+</div>
+
+<div class="modal-backdrop hidden" id="detail-modal">
+  <div class="modal detail-modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <span class="modal-eyebrow" id="detail-eyebrow">学习记录</span>
+        <h3 id="detail-title"></h3>
+      </div>
+      <button class="icon-btn" id="detail-close" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body" id="detail-body"></div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost btn-danger" id="detail-delete">删除记录</button>
+      <button class="btn btn-primary" id="detail-continue">继续这一轮</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-backdrop hidden" id="settings-modal">
+  <div class="modal settings-modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <div>
+        <span class="modal-eyebrow">AI 辅助</span>
+        <h3>连接你自己的 AI 服务</h3>
+      </div>
+      <button class="icon-btn" id="settings-close" aria-label="关闭">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="settings-note">密钥只保存在本机（本地运行写 <code>data/settings.json</code>，线上版存浏览器 localStorage），不会上传到别处。AI 生成的内容是草稿，改完才算你的。</p>
+
+      <div class="field">
+        <span class="field-label">服务商预设</span>
+        <div class="preset-row" id="preset-row"></div>
+      </div>
+
+      <div class="bailing-panel hidden" id="bailing-panel">
+        <div class="bailing-head">
+          <span>阿里云百炼 · 专属地址</span>
+          <button type="button" id="bailing-toggle" class="bailing-toggle">通用域名 →</button>
+        </div>
+        <div class="bailing-row">
+          <input id="bailing-ws" class="input" placeholder="Workspace ID（可留空用通用域名）" spellcheck="false">
+          <select id="bailing-region" class="input">
+            <option value="cn-beijing">华北2（北京）</option>
+            <option value="cn-hongkong">中国香港</option>
+            <option value="ap-southeast-1">新加坡</option>
+            <option value="ap-northeast-1">日本（东京）</option>
+            <option value="us-east-1">美国（弗吉尼亚）</option>
+            <option value="eu-central-1">德国（法兰克福）</option>
+          </select>
+          <button type="button" class="btn btn-ghost" id="bailing-gen">生成</button>
+        </div>
+        <div class="bailing-models">
+          <span class="field-label">常用模型</span>
+          <div class="preset-row" id="bailing-model-row"></div>
+        </div>
+        <p class="bailing-note">API Key 必须与所选地域一致，跨地域会报 401。Workspace ID 可在百炼控制台「业务空间详情」查看。<br>提示：deepseek-v4.1-flash 系列目前官方明确支持中国香港地域，建议选「中国香港」并生成专属地址。</p>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="setting-baseurl">接口地址 Base URL</label>
+        <input id="setting-baseurl" class="input" placeholder="https://api.openai.com/v1" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="setting-model">模型名称</label>
+        <input id="setting-model" class="input" placeholder="gpt-4o-mini" spellcheck="false">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="setting-key">API Key</label>
+        <input id="setting-key" class="input" type="password" placeholder="sk-..." spellcheck="false" autocomplete="off">
+        <span class="field-hint" id="key-hint"></span>
+      </div>
+
+      <div class="test-result hidden" id="test-result"></div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn btn-ghost" id="settings-test">测试连接</button>
+      <button class="btn btn-primary" id="settings-save">保存设置</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="api-shim.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
